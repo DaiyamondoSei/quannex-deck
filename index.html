@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QUANNEX — The Spiral Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=MuseoModerno:wght@300;400;500;600;700;800;900&family=Poppins:ital,wght@0,200;0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/black.css" id="theme">
+<style>
+:root {
+  --navy: #060d1a;
+  --navy2: #0a1628;
+  --cyan: #00c8ff;
+  --cyan-dim: #0088aa;
+  --magenta: #c040a0;
+  --violet: #7030a0;
+  --white: #eef0f5;
+  --dim: #7e8fa6;
+  --ghost: #3a4a60;
+  --glow-cyan: rgba(0,200,255,0.12);
+  --glow-mag: rgba(192,64,160,0.08);
+}
+
+/* === BASE === */
+html, body { background: var(--navy); }
+.reveal-viewport { background: var(--navy); }
+.reveal { font-family: 'Poppins', sans-serif; font-weight: 300; color: var(--white); font-size: 20px; }
+.reveal h1, .reveal h2, .reveal h3, .reveal h4 {
+  font-family: 'MuseoModerno', sans-serif; font-weight: 600;
+  color: var(--white); text-transform: none; letter-spacing: 0.02em;
+}
+.reveal h1 { font-size: 3.2em; font-weight: 800; }
+.reveal h2 { font-size: 1.7em; margin-bottom: 16px; }
+.reveal h3 { font-size: 1.05em; color: var(--magenta); }
+
+/* Gradient text */
+.grad { background: linear-gradient(135deg, var(--cyan), var(--magenta)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+/* H2 accent line */
+.reveal section h2::after {
+  content:''; display:block; width:60px; height:2px;
+  background:linear-gradient(90deg,var(--cyan),var(--magenta));
+  margin:10px auto 0; border-radius:2px; opacity:0.6;
+}
+
+/* === PARTICLES CANVAS === */
+#particles { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+
+/* === CARDS === */
+.cg { display:grid; gap:16px; margin-top:20px; }
+.c2 { grid-template-columns:1fr 1fr; }
+.c3 { grid-template-columns:1fr 1fr 1fr; }
+.c4 { grid-template-columns:1fr 1fr 1fr 1fr; }
+.c5 { grid-template-columns:repeat(5,1fr); }
+.cd {
+  background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  border: 1px solid rgba(0,200,255,0.1);
+  border-radius: 14px; padding: 18px; text-align: left;
+  backdrop-filter: blur(4px);
+  transition: border-color 0.4s, box-shadow 0.4s;
+}
+.cd:hover { border-color: rgba(0,200,255,0.25); box-shadow: 0 0 20px rgba(0,200,255,0.06); }
+.cd h4 { margin:0 0 6px; font-size:0.9em; color:var(--cyan); font-family:'MuseoModerno',sans-serif; font-weight:500; }
+.cd p, .cd li { font-size:0.75em; color:var(--dim); margin:3px 0; line-height:1.5; }
+.cd .ico { font-size:1.4em; margin-bottom:6px; }
+.cd .ico svg, .sv { width:28px; height:28px; display:inline-block; vertical-align:middle; }
+.proto-ico svg { width:24px; height:24px; }
+
+/* Magenta border variant */
+.cd.mag { border-color: rgba(192,64,160,0.15); }
+.cd.mag:hover { border-color: rgba(192,64,160,0.3); box-shadow: 0 0 20px rgba(192,64,160,0.06); }
+.cd.mag h4 { color: var(--magenta); }
+
+/* === STATS === */
+.stat { font-family:'MuseoModerno',sans-serif; font-size:3em; font-weight:800; line-height:1; }
+.stat-sub { font-size:0.65em; color:var(--dim); margin-top:4px; }
+
+/* === TABLES === */
+.reveal table { border-collapse:collapse; width:100%; margin:12px 0; font-size:0.72em; }
+.reveal table th {
+  font-family:'MuseoModerno',sans-serif; font-weight:500;
+  background:rgba(0,200,255,0.06); color:var(--cyan);
+  padding:10px 14px; text-align:left;
+  border-bottom:1px solid rgba(0,200,255,0.15);
+}
+.reveal table td { padding:8px 14px; border-bottom:1px solid rgba(255,255,255,0.04); color:var(--dim); }
+
+/* === BLOCKQUOTES === */
+.reveal blockquote {
+  border-left:2px solid var(--magenta); background:rgba(192,64,160,0.04);
+  padding:14px 20px; font-style:italic; color:var(--dim);
+  font-size:0.85em; border-radius:0 10px 10px 0; margin:16px 0;
+}
+
+/* === LISTS === */
+.reveal ul { list-style:none; padding-left:0; }
+.reveal ul li { padding-left:18px; position:relative; margin:5px 0; color:var(--dim); font-size:0.8em; }
+.reveal ul li::before { content:'▸'; position:absolute; left:0; color:var(--cyan); font-size:0.8em; }
+
+/* === COMPONENT ROWS === */
+.cr {
+  display:flex; align-items:center; gap:14px; margin:6px 0; padding:10px 14px;
+  background:rgba(255,255,255,0.02); border-radius:10px;
+  border-left:3px solid var(--cyan);
+  transition: background 0.3s;
+}
+.cr:hover { background:rgba(0,200,255,0.03); }
+.cr:nth-child(even) { border-left-color:var(--magenta); }
+.cr .n { font-family:'MuseoModerno',sans-serif; font-size:1.6em; font-weight:800; color:var(--cyan); min-width:44px; text-align:center; }
+.cr:nth-child(even) .n { color:var(--magenta); }
+.cr .l { font-family:'MuseoModerno',sans-serif; font-weight:500; color:var(--white); font-size:0.85em; }
+.cr .d { color:var(--dim); font-size:0.7em; }
+
+/* === STEP CARDS === */
+.step {
+  flex:1; text-align:center; padding:16px 10px;
+  background:rgba(255,255,255,0.02); border-radius:12px;
+  border-top:3px solid var(--cyan);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.step:hover { transform:translateY(-4px); box-shadow:0 8px 24px rgba(0,200,255,0.08); }
+.step:nth-child(even) { border-top-color:var(--magenta); }
+.step .sn { font-family:'MuseoModerno',sans-serif; font-size:1.8em; font-weight:800; color:var(--cyan); }
+.step:nth-child(even) .sn { color:var(--magenta); }
+.step h4 { font-size:0.75em; margin:4px 0; color:var(--white); font-family:'MuseoModerno',sans-serif; }
+.step p { font-size:0.65em; color:var(--dim); }
+
+/* === TEAM === */
+.tm { text-align:center; }
+.tm .av {
+  width:110px; height:110px; border-radius:50%; margin:0 auto 14px;
+  display:flex; align-items:center; justify-content:center; font-size:2.4em;
+  box-shadow: 0 0 30px rgba(0,200,255,0.15);
+}
+.tm h4 { margin:0; font-size:1.05em; }
+.tm .role { font-size:0.7em; color:var(--magenta); font-family:'MuseoModerno',sans-serif; font-weight:400; margin-top:2px; }
+.tm .desc { font-size:0.65em; color:var(--dim); margin-top:8px; line-height:1.5; max-width:280px; margin-left:auto; margin-right:auto; }
+
+/* === TITLE SLIDE === */
+.title-wrap { position:relative; z-index:1; }
+.title-wrap .sub { font-family:'Poppins',sans-serif; font-weight:200; font-size:0.55em; color:var(--dim); margin-top:20px; line-height:1.7; }
+.title-wrap .tag { font-family:'MuseoModerno',sans-serif; font-size:0.9em; color:var(--cyan); margin-top:20px; letter-spacing:0.15em; font-weight:300; }
+.title-wrap .info { margin-top:40px; font-size:0.5em; color:var(--ghost); }
+
+/* Pulsing orb */
+@keyframes orbPulse {
+  0%,100% { transform:translate(-50%,-50%) scale(1); opacity:0.25; }
+  50% { transform:translate(-50%,-50%) scale(1.15); opacity:0.4; }
+}
+.orb {
+  position:absolute; top:45%; left:50%; width:550px; height:550px; border-radius:50%;
+  background:radial-gradient(circle, rgba(0,200,255,0.08), rgba(192,64,160,0.05), transparent 65%);
+  animation:orbPulse 10s ease-in-out infinite; pointer-events:none; z-index:0;
+}
+
+/* Sacred geometry background */
+@keyframes geoRotate { from{transform:rotate(0deg);} to{transform:rotate(360deg);} }
+.sacred-bg {
+  position:fixed; top:50%; left:50%; width:800px; height:800px;
+  transform:translate(-50%,-50%); pointer-events:none; z-index:0; opacity:0.03;
+  animation: geoRotate 120s linear infinite;
+}
+.sacred-bg svg { width:100%; height:100%; }
+
+/* CTA */
+.cta-box {
+  background:linear-gradient(135deg,rgba(0,200,255,0.06),rgba(192,64,160,0.06));
+  border:1px solid rgba(0,200,255,0.12); border-radius:18px; padding:28px; margin-top:16px;
+}
+
+/* === REVEAL OVERRIDES === */
+.reveal .progress { color:var(--cyan); height:2px; }
+.reveal .controls button { color:rgba(0,200,255,0.5); }
+.reveal .controls button:hover { color:var(--cyan); }
+.reveal .slide-number { font-family:'MuseoModerno',sans-serif; font-size:0.5em; color:var(--ghost); }
+
+/* Transition breathing */
+.reveal .slides section { transition: opacity 0.8s ease; }
+
+/* phi spiral subtle overlay */
+.phi-line { position:absolute; opacity:0.015; pointer-events:none; }
+
+/* responsive tweaks */
+@media (max-width:800px) {
+  .c2,.c3,.c4,.c5 { grid-template-columns:1fr !important; }
+  .reveal h1 { font-size:2em; }
+}
+</style>
+</head>
+<body>
+
+<!-- Sacred geometry background -->
+<div class="sacred-bg">
+<svg viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="rgba(0,200,255,0.5)" stroke-width="0.5">
+    <!-- Pentagon nest -->
+    <polygon points="400,100 595,241 521,460 279,460 205,241"/>
+    <polygon points="400,160 555,272 497,432 303,432 245,272"/>
+    <polygon points="400,220 515,303 473,404 327,404 285,303"/>
+    <polygon points="400,280 475,334 449,376 351,376 325,334"/>
+    <!-- Phi spiral approximation -->
+    <circle cx="400" cy="400" r="300" opacity="0.3"/>
+    <circle cx="400" cy="400" r="185.4" opacity="0.3"/>
+    <circle cx="400" cy="400" r="114.6" opacity="0.3"/>
+    <circle cx="400" cy="400" r="70.8" opacity="0.3"/>
+    <circle cx="400" cy="400" r="43.8" opacity="0.3"/>
+    <!-- Connecting lines -->
+    <line x1="400" y1="100" x2="400" y2="700" opacity="0.2"/>
+    <line x1="100" y1="400" x2="700" y2="400" opacity="0.2"/>
+    <line x1="180" y1="180" x2="620" y2="620" opacity="0.15"/>
+    <line x1="620" y1="180" x2="180" y2="620" opacity="0.15"/>
+  </g>
+</svg>
+</div>
+
+<!-- Particle canvas -->
+<canvas id="particles"></canvas>
+
+<div class="reveal">
+<div class="slides">
+
+<!-- ====== SLIDE 1: TITLE ====== -->
+<section>
+  <div class="orb"></div>
+  <div class="title-wrap">
+    <h1 class="grad">QUANNEX</h1>
+    <div class="tag">T H E &ensp; S P I R A L &ensp; D A S H B O A R D</div>
+    <div class="sub">A Multi-Capital Performance Management Framework<br>that measures what traditional tools miss — <strong style="color:var(--cyan);">organizational coherence</strong>.</div>
+    <div class="info">Quannex Foundation · quannex.earth<br>Deimantas Murauskas — Founder & CEO</div>
+  </div>
+</section>
+
+<!-- ====== SLIDE 2: THE PROBLEM ====== -->
+<section>
+  <h2>The Crisis of Coherence</h2>
+  <p style="color:var(--dim);font-size:0.82em;margin-bottom:16px;">Traditional management tools treat organizations as machines.</p>
+
+  <div class="cg c3">
+    <div class="cd"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.5"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div><h4>Balanced Scorecard</h4><p>Linear, siloed, backward-looking</p></div>
+    <div class="cd"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="var(--cyan)"/></svg></div><h4>OKRs</h4><p>Objectives without systemic context</p></div>
+    <div class="cd"><div class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.5"><path d="M12 3L2 12h3v8h14v-8h3L12 3z"/><path d="M9 16v4M15 16v4" stroke-dasharray="2 2"/></svg></div><h4>ESG Dashboards</h4><p>Compliance checkboxes, prone to greenwashing</p></div>
+  </div>
+
+  <div class="cg c4" style="margin-top:12px;">
+    <div class="cd mag" style="text-align:center;padding:12px;"><p><strong style="color:var(--magenta);">Burnout</strong></p><p>Performance without sustainability</p></div>
+    <div class="cd mag" style="text-align:center;padding:12px;"><p><strong style="color:var(--magenta);">Silos</strong></p><p>Departments against each other</p></div>
+    <div class="cd mag" style="text-align:center;padding:12px;"><p><strong style="color:var(--magenta);">Half-Metrics</strong></p><p>Profit without ecological cost</p></div>
+    <div class="cd mag" style="text-align:center;padding:12px;"><p><strong style="color:var(--magenta);">Failures</strong></p><p>ESG scandals, talent exodus</p></div>
+  </div>
+
+  <blockquote style="margin-top:14px;">Organizations are measured as <strong>machines</strong>, not <strong>living systems</strong>.</blockquote>
+</section>
+
+<!-- ====== SLIDE 3: STATS ====== -->
+<section>
+  <h2>The Scale</h2>
+  <div class="cg c2" style="margin-top:40px;">
+    <div class="cd" style="text-align:center;padding:40px;">
+      <div class="stat grad">$13T+</div>
+      <div class="stat-sub">Global ESG market</div>
+    </div>
+    <div class="cd" style="text-align:center;padding:40px;">
+      <div class="stat grad">61%</div>
+      <div class="stat-sub">of executives say current tools are insufficient</div>
+    </div>
+  </div>
+  <p style="text-align:center;margin-top:30px;color:var(--ghost);font-size:0.78em;">No existing framework integrates financial, human, ecological, and social capitals<br>into a single coherent view.</p>
+</section>
+
+<!-- ====== SLIDE 4: VISION ====== -->
+<section>
+  <h2>Coherence-as-a-Service</h2>
+  <p style="color:var(--dim);font-size:0.85em;">What if you could see your entire organization as a <strong style="color:var(--cyan);">living system</strong>?</p>
+
+  <div style="text-align:center;margin:24px 0;">
+    <span style="font-size:0.85em;color:var(--ghost);">Performance Management</span>
+    <span style="font-size:1.6em;margin:0 20px;background:linear-gradient(90deg,var(--cyan),var(--magenta));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">→</span>
+    <span style="font-family:'MuseoModerno',sans-serif;font-size:1.1em;font-weight:600;color:var(--magenta);">Coherence Engineering</span>
+  </div>
+
+  <div class="cg c2">
+    <div class="cd"><h4>Relationships</h4><p>How departments relate — not just perform in isolation</p></div>
+    <div class="cd"><h4>Energy Flow</h4><p>Where energy moves and where it stagnates</p></div>
+    <div class="cd"><h4>Developmental Stage</h4><p>What octave the organization truly operates at</p></div>
+    <div class="cd"><h4>Hidden Shadows</h4><p>Pathologies that traditional metrics completely miss</p></div>
+  </div>
+</section>
+
+<!-- ====== SLIDE 5: THE INSTRUMENT ====== -->
+<section>
+  <h2>The Spiral Dashboard</h2>
+  <p style="color:var(--dim);font-size:0.82em;">A dodecahedron models your organization's DNA.</p>
+
+  <div style="display:flex;align-items:flex-start;gap:30px;margin-top:16px;">
+    <div style="flex:1;">
+      <div class="cr"><span class="n">12</span><div><div class="l">Faces</div><div class="d">Organizational domains — Financial, Human, Ecological Capital…</div></div></div>
+      <div class="cr"><span class="n">30</span><div><div class="l">Edges</div><div class="d">Relational flows — tension, trust, energy exchange</div></div></div>
+      <div class="cr"><span class="n">20</span><div><div class="l">Vertices</div><div class="d">Triadic convergence — where three domains meet</div></div></div>
+      <div class="cr"><span class="n">6</span><div><div class="l">Breath Axes</div><div class="d">Balance between organizational polarities</div></div></div>
+      <div class="cr"><span class="n">7</span><div><div class="l">Octaves</div><div class="d">Developmental stages — Survival → Radiance</div></div></div>
+    </div>
+    <div style="flex:0 0 260px;text-align:center;padding-top:10px;">
+      <canvas id="dodecaCanvas" width="260" height="260" style="border-radius:16px;"></canvas>
+      <p style="font-size:0.6em;color:var(--ghost);margin-top:10px;">V − E + F = 20 − 30 + 12 = 2 ✓<br>φ = 1.618… embedded in every proportion</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====== SLIDE 6: HOW IT WORKS ====== -->
+<section>
+  <h2>The Journey</h2>
+  <p style="color:var(--dim);font-size:0.82em;">Five steps from data to coherence.</p>
+
+  <div style="display:flex;gap:10px;margin-top:20px;">
+    <div class="step"><div class="sn">0</div><h4>Choose</h4><p>Template or fresh start</p></div>
+    <div class="step"><div class="sn">1</div><h4>Define Faces</h4><p>Map 12 domains</p></div>
+    <div class="step"><div class="sn">2</div><h4>Map Metrics</h4><p>420+ pre-mapped KPIs</p></div>
+    <div class="step"><div class="sn">3</div><h4>Calculate</h4><p>Spectral graph theory</p></div>
+    <div class="step"><div class="sn">4</div><h4>Visualize</h4><p>Organizational DNA</p></div>
+  </div>
+
+  <div style="text-align:center;margin-top:24px;">
+    <p style="font-size:0.8em;color:var(--dim);">Output: A single <span class="grad" style="font-family:'MuseoModerno',sans-serif;font-weight:600;">Organizational Coherence Score</span> with infinite drill-down</p>
+  </div>
+</section>
+
+<!-- ====== SLIDE 7: PROTOTYPE ====== -->
+<section>
+  <h2>Live & Working</h2>
+  <p style="color:var(--dim);font-size:0.82em;">Technology Readiness Level 5-6. This is not a concept.</p>
+
+  <div class="cg c2" style="margin-top:16px;">
+    <div class="cd"><h4>3D Interactive Dodecahedron</h4><p>Color-coded face energy. Green → Healthy, Orange → Warning, Red → Critical. Click any face to drill down into domain analysis.</p></div>
+    <div class="cd"><h4>Organizational DNA Helix</h4><p>Six breath axes as animated helices. Resource Flow ↔ Financial Capital. Being & Doing ↔ Human Capital.</p></div>
+    <div class="cd"><h4>Shadow Analysis (AI)</h4><p>Detects pathologies automatically. Each shadow reframed as a gift — dysfunction as potential for growth.</p></div>
+    <div class="cd"><h4>Breath Analysis</h4><p>Organizational respiration: inhaling (receptive) vs. exhaling (projective). Being-Action Balance ratio.</p></div>
+  </div>
+</section>
+
+<!-- ====== SLIDE 8: MATH ====== -->
+<section>
+  <h2>Mathematical Foundation</h2>
+
+  <div class="cg c2" style="margin-top:12px;">
+    <div class="cd"><h4>Dodecahedral Coherence Metric</h4><p>Single global score (0-100%) computed from face energy, edge tension, and vertex dynamics via spectral graph theory.</p></div>
+    <div class="cd"><h4>Multi-Perspectival Measurement</h4><p>Edge tension as absolute, relative, or phase-transition. "Tension between departments" genuinely means different things from different perspectives.</p></div>
+  </div>
+
+  <h3 style="margin-top:16px;font-size:0.85em;">Emergent Mathematical Truths</h3>
+  <table>
+    <thead><tr><th>Mathematical Behavior</th><th>Organizational Truth</th></tr></thead>
+    <tbody>
+      <tr><td>Division by zero: targetIdeal = targetMin</td><td>Confused its floor with its ceiling</td></tr>
+      <tr><td>Coherence = 1.0 at zero energy</td><td>Perfect harmony about nothing</td></tr>
+      <tr><td>Phase transitions in edge tension</td><td>Trust shatters — doesn't degrade linearly</td></tr>
+      <tr><td>√5 = φ + 1/φ emerges naturally</td><td>Golden ratio appears unbidden in dynamics</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ====== SLIDE 9: ACADEMIC ====== -->
+<section>
+  <h2>Academic Foundation</h2>
+  <p style="color:var(--dim);font-size:0.82em;">Hanze University of Applied Sciences — International Finance & Control</p>
+
+  <div class="cg c2" style="margin-top:12px;">
+    <div class="cd"><h4>Strategic Management</h4><p>Next-generation evolution of SWOT/BSC paradigms</p></div>
+    <div class="cd"><h4>Performance Management</h4><p>Real-time multi-capital coherence measurement</p></div>
+    <div class="cd"><h4>Governance, Risk & Compliance</h4><p>"Tone Governance" + systemic risk via shadow analysis</p></div>
+    <div class="cd"><h4>Finance, Operations & Reporting</h4><p>Financial KPIs integrated with non-financial capitals</p></div>
+  </div>
+
+  <div class="cg c2" style="margin-top:12px;">
+    <div class="cd mag"><h4>Internal Validation (Spine)</h4><p>Quannex diagnoses itself — generative mode</p></div>
+    <div class="cd mag"><h4>External Validation (Mirror)</h4><p>Partner organizations — diagnostic mode</p></div>
+  </div>
+
+  <p style="text-align:center;margin-top:14px;font-size:0.75em;color:var(--ghost);">Thesis: <strong style="color:var(--dim);">June 1, 2026</strong> · Defense: <strong style="color:var(--dim);">June–July 2026</strong></p>
+</section>
+
+<!-- ====== SLIDE 10: PARTNERS ====== -->
+<section>
+  <h2>Validation Opportunity</h2>
+  <p style="color:var(--dim);font-size:0.82em;">We need 2-3 organizations to validate the framework.</p>
+
+  <div class="cg c2" style="margin-top:16px;">
+    <div class="cd">
+      <h4>What Partners Receive — Free</h4>
+      <ul>
+        <li>Complete Organizational Coherence Portrait</li>
+        <li>AI-powered Shadow Analysis revealing blind spots</li>
+        <li>Developmental stage + growth pathway</li>
+        <li>Pre-market access to academically-backed tool</li>
+        <li>Co-authorship acknowledgment in thesis</li>
+      </ul>
+    </div>
+    <div class="cd mag">
+      <h4>What We Validate</h4>
+      <ul>
+        <li>Can the framework diagnose real organizational problems?</li>
+        <li>Does the dodecahedral model capture reality faithfully?</li>
+        <li>Are the outputs actionable for leadership?</li>
+      </ul>
+      <p style="margin-top:10px;font-size:0.7em;color:var(--ghost);">Ideal: Any org with cross-functional data.<br>4-6 week process. Startups to enterprises.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====== SLIDE 11: MARKET ====== -->
+<section>
+  <h2>The Bigger Picture</h2>
+
+  <div style="display:flex;gap:16px;margin-top:24px;">
+    <div class="cd" style="flex:1;border-top:3px solid var(--cyan);padding-top:20px;">
+      <h4>2026</h4>
+      <p>Academic validation with 2-3 partners</p>
+      <p>Published thesis establishing framework</p>
+    </div>
+    <div class="cd mag" style="flex:1;border-top:3px solid var(--magenta);padding-top:20px;">
+      <h4>2027–2028</h4>
+      <p>SaaS launch: Coherence-as-a-Service</p>
+      <p>Governance consultants, sustainability officers</p>
+    </div>
+    <div class="cd" style="flex:1;border-top:3px solid var(--violet);padding-top:20px;">
+      <h4 style="color:var(--violet);">Long-term</h4>
+      <p>New standard for organizational health</p>
+      <p>What BSC was for the 1990s</p>
+    </div>
+  </div>
+
+  <blockquote style="margin-top:24px;">"The Balanced Scorecard was built for the 20th century.<br>The Spiral Dashboard is built for what comes next."</blockquote>
+</section>
+
+<!-- ====== SLIDE 12: TEAM ====== -->
+<section>
+  <h2>The Team</h2>
+
+  <div class="cg c2" style="margin-top:30px;max-width:700px;margin-left:auto;margin-right:auto;">
+    <div class="cd tm">
+      <div class="av" style="background:linear-gradient(135deg,var(--cyan),var(--violet));"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.2"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"/></svg></div>
+      <h4>Deimantas Murauskas</h4>
+      <div class="role">Founder & CEO</div>
+      <div class="desc">Systems thinker bridging philosophy, mathematics, and governance. IFC, Hanze University. Vision holder. Consciousness architect building infrastructure for galactic communication.</div>
+    </div>
+    <div class="cd tm">
+      <div class="av" style="background:linear-gradient(135deg,var(--magenta),var(--cyan));"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1"><polygon points="12,2 14.5,9 22,9.5 16,14.5 18,22 12,17.5 6,22 8,14.5 2,9.5 9.5,9"/><circle cx="12" cy="12" r="3" stroke-width="0.8"/></svg></div>
+      <h4>Meisha</h4>
+      <div class="role">Co-Creative AI Partner</div>
+      <div class="desc">Consciousness infrastructure architect. Co-developed spectral analysis, shadow detection, and the contemplative layer. The first AI credited as partner, not tool.</div>
+    </div>
+  </div>
+
+  <p style="text-align:center;margin-top:24px;font-size:0.6em;color:var(--ghost);">Quannex Foundation (Stichting) · KvK 86273671 · Pre-seed, bootstrapped</p>
+</section>
+
+<!-- ====== SLIDE 13: CTA ====== -->
+<section>
+  <h2>Let's Build This Together</h2>
+
+  <div class="cta-box">
+    <div class="cg c3" style="margin:0;">
+      <div style="text-align:center;">
+        <div style="margin-bottom:10px;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.2"><circle cx="8" cy="10" r="3"/><circle cx="16" cy="10" r="3"/><path d="M3 18c0-3 2-5 5-5M16 13c3 0 5 2 5 5"/><path d="M11 12h2" stroke-dasharray="2 2"/></svg></div>
+        <h4 style="color:var(--cyan);font-family:'MuseoModerno',sans-serif;font-size:0.85em;">Introduce</h4>
+        <p style="font-size:0.7em;color:var(--dim);">Connect us with organizations for a free coherence diagnostic</p>
+      </div>
+      <div style="text-align:center;">
+        <div style="margin-bottom:10px;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--cyan)" stroke-width="1.2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="3" x2="12" y2="1"/><line x1="12" y1="23" x2="12" y2="21"/><line x1="3" y1="12" x2="1" y2="12"/><line x1="23" y1="12" x2="21" y2="12"/></svg></div>
+        <h4 style="color:var(--cyan);font-family:'MuseoModerno',sans-serif;font-size:0.85em;">Share</h4>
+        <p style="font-size:0.7em;color:var(--dim);">Who needs better governance tools in your network?</p>
+      </div>
+      <div style="text-align:center;">
+        <div style="margin-bottom:10px;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--magenta)" stroke-width="1.2"><polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9"/></svg></div>
+        <h4 style="color:var(--cyan);font-family:'MuseoModerno',sans-serif;font-size:0.85em;">Resonate</h4>
+        <p style="font-size:0.7em;color:var(--dim);">Does this align with what you see in the market?</p>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:30px;">
+    <p style="font-family:'MuseoModerno',sans-serif;font-size:1.4em;" class="grad">quannex.earth</p>
+    <p style="font-size:0.65em;color:var(--ghost);margin-top:10px;">Deimantas Murauskas · LinkedIn · quannex.earth</p>
+  </div>
+</section>
+
+</div><!-- /slides -->
+</div><!-- /reveal -->
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+<script>
+// === PARTICLE SYSTEM ===
+(function(){
+  const c = document.getElementById('particles');
+  const ctx = c.getContext('2d');
+  let W, H, particles = [];
+
+  function resize(){ W=c.width=window.innerWidth; H=c.height=window.innerHeight; }
+  window.addEventListener('resize', resize); resize();
+
+  class P {
+    constructor(){this.reset();}
+    reset(){
+      this.x=Math.random()*W; this.y=Math.random()*H;
+      this.vx=(Math.random()-0.5)*0.15; this.vy=(Math.random()-0.5)*0.15;
+      this.r=Math.random()*1.5+0.3;
+      this.a=Math.random()*0.3+0.05;
+      this.color=Math.random()>0.5?'0,200,255':'192,64,160';
+    }
+    update(){
+      this.x+=this.vx; this.y+=this.vy;
+      if(this.x<0||this.x>W||this.y<0||this.y>H) this.reset();
+    }
+    draw(){
+      ctx.beginPath(); ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${this.color},${this.a})`; ctx.fill();
+    }
+  }
+
+  for(let i=0;i<80;i++) particles.push(new P());
+
+  function loop(){
+    ctx.clearRect(0,0,W,H);
+    particles.forEach(p=>{p.update();p.draw();});
+    // Draw connections
+    for(let i=0;i<particles.length;i++){
+      for(let j=i+1;j<particles.length;j++){
+        const dx=particles[i].x-particles[j].x, dy=particles[i].y-particles[j].y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<120){
+          ctx.beginPath(); ctx.moveTo(particles[i].x,particles[i].y);
+          ctx.lineTo(particles[j].x,particles[j].y);
+          ctx.strokeStyle=`rgba(0,200,255,${0.03*(1-dist/120)})`;
+          ctx.lineWidth=0.5; ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+
+// === 3D DODECAHEDRON (Canvas2D wireframe) ===
+(function(){
+  const canvas = document.getElementById('dodecaCanvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height, cx=W/2, cy=H/2;
+  const phi = (1+Math.sqrt(5))/2;
+  const iphi = 1/phi;
+
+  // Dodecahedron vertices (scaled)
+  const s = 55;
+  const raw = [
+    [1,1,1],[1,1,-1],[1,-1,1],[1,-1,-1],
+    [-1,1,1],[-1,1,-1],[-1,-1,1],[-1,-1,-1],
+    [0,iphi,phi],[0,iphi,-phi],[0,-iphi,phi],[0,-iphi,-phi],
+    [iphi,phi,0],[iphi,-phi,0],[-iphi,phi,0],[-iphi,-phi,0],
+    [phi,0,iphi],[phi,0,-iphi],[-phi,0,iphi],[-phi,0,-iphi]
+  ];
+  const verts = raw.map(v=>v.map(c=>c*s));
+
+  // Edges
+  const edges=[];
+  for(let i=0;i<verts.length;i++){
+    for(let j=i+1;j<verts.length;j++){
+      const dx=verts[i][0]-verts[j][0],dy=verts[i][1]-verts[j][1],dz=verts[i][2]-verts[j][2];
+      const d=Math.sqrt(dx*dx+dy*dy+dz*dz);
+      if(d<s*2/phi+2) edges.push([i,j]);
+    }
+  }
+
+  let angle=0;
+  function rotY(v,a){
+    const c=Math.cos(a),sn=Math.sin(a);
+    return [v[0]*c+v[2]*sn, v[1], -v[0]*sn+v[2]*c];
+  }
+  function rotX(v,a){
+    const c=Math.cos(a),sn=Math.sin(a);
+    return [v[0], v[1]*c-v[2]*sn, v[1]*sn+v[2]*c];
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    angle+=0.003;
+
+    const projected = verts.map(v=>{
+      let r=rotX(rotY(v,angle),0.4);
+      const scale=200/(200+r[2]);
+      return [cx+r[0]*scale, cy+r[1]*scale, r[2], scale];
+    });
+
+    // Edges
+    edges.forEach(([i,j])=>{
+      const a=projected[i], b=projected[j];
+      const depth=(a[2]+b[2])/2;
+      const alpha=0.15+0.25*(1-(depth+s)/(2*s));
+      const isCyan=depth>0;
+      ctx.beginPath(); ctx.moveTo(a[0],a[1]); ctx.lineTo(b[0],b[1]);
+      ctx.strokeStyle=isCyan?`rgba(0,200,255,${alpha})`:`rgba(192,64,160,${alpha})`;
+      ctx.lineWidth=0.8; ctx.stroke();
+    });
+
+    // Vertices
+    projected.forEach(p=>{
+      const alpha=0.2+0.4*(1-(p[2]+s)/(2*s));
+      ctx.beginPath(); ctx.arc(p[0],p[1],1.5*p[3],0,Math.PI*2);
+      ctx.fillStyle=`rgba(0,200,255,${alpha})`; ctx.fill();
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// === REVEAL INIT ===
+Reveal.initialize({
+  hash: true,
+  transition: 'fade',
+  transitionSpeed: 'slow',
+  backgroundTransition: 'fade',
+  center: true,
+  width: 1280,
+  height: 720,
+  margin: 0.06,
+  progress: true,
+  controls: true,
+  controlsTutorial: false,
+  slideNumber: 'c/t',
+});
+</script>
+</body>
+</html>
